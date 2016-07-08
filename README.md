@@ -9,10 +9,6 @@ You can uncomment any of the DEFAULT variables and the sed execution to simply s
 ### Usage
 
 For my case I am upgrading and existing installation of bugzilla and I am passing in three different conf files at run time using a -v option.  For most cases you can use pass in various environment varibles.
-
-> docker run -d -p 80:80 --name bugzilla \
->-e MYSQL_HOST=<host> localhost \
->-e MYSQL_PORT=<port> 3306 \
->-e MYSQL_DB=<database> bugzilla \
->-e MYSQL_USER=<user> bugzilla \
->-e MYSQL_PWD=<password> bugzilla
+```
+docker run -d -p 80:80 --name bugzilla -e MYSQL_HOST=localhost -e MYSQL_PORT=3306 -e MYSQL_DB=bugs -e MYSQL_USER=root -e MYSQL_PWD=root bugzilla
+```
