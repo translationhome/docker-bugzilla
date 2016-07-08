@@ -1,0 +1,41 @@
+#!/bin/sh
+# Set up bugzilla and run apache2
+DEFAULT_WEBSERVER_GROUP=www-data
+
+# Substitute values into bugzilla localconfig
+[ -f ./localconfig ] || {
+    echo "Initialize localconfig."
+    ./checksetup.pl
+}
+
+echo "Substitute localconfig variables."
+sed --in-place -f - ./localconfig <<SED
+s/webservergroup *= *'[a-zA-Z0-9.]\+'/webservergroup = '${WEBSERVER_GROUP}'/
+s/db_host *= *'[a-zA-Z0-9.]\+'/db_host = '${MYSQL_HOST}'/
+s/db_port *= *[0-9.]\+/db_port = ${MYSQL_PORT}/
+s/db_name *= *'[a-zA-Z0-9.]\+'/db_name = '${MYSQL_DB}'/
+s/db_user *= *'[a-zA-Z0-9.]\+'/db_user = '${MYSQL_USER}'/
+s/^\$db_pass\s*=\s*.*$/\$db_pass = '${MYSQL_PWD}';/
+SED
+
+# Remove voting disable file
+rm -f extensions/Voting/disabled
+
+# Verify bugzilla setup
+mkdir data && chmod a-w data
+./checksetup.pl
+grep Sendmail ./data/params.json && {
+sed --in-place -f - ./data/params.json <<SED
+s/Sendmail/None/
+SED
+}
+
+# Change ownership
+chown -R www-data:www-data .
+
+# Remove stall pid file
+rm -f /var/run/apache2/apache2.pid
+
+# Start apache2
+. /etc/apache2/envvars
+/usr/sbin/apache2 -D FOREGROUND
