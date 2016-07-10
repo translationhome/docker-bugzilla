@@ -24,6 +24,8 @@ rm -f extensions/Voting/disabled
 # Verify bugzilla setup
 mkdir data && chmod a-w data
 ./checksetup.pl
+
+# Disable email notifications
 grep Sendmail ./data/params.json && {
 sed --in-place -f - ./data/params.json <<SED
 s/Sendmail/None/
